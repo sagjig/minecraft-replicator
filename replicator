@@ -65,7 +65,7 @@ local inventoryMaterials = Materials.fromTable {
 
 local storageMaterials = Materials.fromTable {
   {'redstone', 64 * 3}, {'sand', 64 * 2}, 'log', 'iron_ore', 'diamond',
-  'reeds', 'sapling', 'glass_pane', 'iron_ingot', 'ComputerCraft:CC-Computer',
+  'reeds', 'sapling', 'glass_pane', 'iron_ingot', 'ComputerCraft:Computer',
   'bucket', 'water_bucket', 'diamond_pickaxe', 'crafting_table'
 }
 
