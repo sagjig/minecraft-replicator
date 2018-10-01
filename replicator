@@ -12,11 +12,6 @@
   /______________________________________________//
   `-------------------------------------------- ]]
 
-
-if redstone then
-  function require(lib) shell.run(lib .. '.lua') end
-end
-
 require 'lib/class'
 require 'lib/serpent'
 require 'lib/utils'
