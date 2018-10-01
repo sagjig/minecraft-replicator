@@ -1242,7 +1242,7 @@ function Replicator:buildDiskDrive()
   self:smelt({'cobblestone', 7}, {'coal', 1})
   self:exec [[ Y2 ]]
   self:craft(Recipes.diskDrive, 1, false)
-  self:exec [[ Y2 E !ComputerCraft:CC-Peripheral P Y0 ]]
+  self:exec [[ Y2 E !ComputerCraft:Peripheral P Y0 ]]
   self.state.have_disk_drive = true
   self:writeState()
 end
@@ -1360,7 +1360,7 @@ function Replicator:loop()
     if haveParent then
       -- Figure out bearing since turtles are placed differently
       -- depending on the world orientation of the parent.
-      while not self:detect('ComputerCraft:CC-Peripheral') do
+      while not self:detect('ComputerCraft:Peripheral') do
         self:turn('left')
       end
 
@@ -1498,23 +1498,23 @@ function Replicator:loop()
   end
 
   local computerMaterials = {{'cobblestone', 7}, 'redstone', 'glass_pane', 'coal'}
-  if self:haveMaterials(computerMaterials) and self.storage:count('ComputerCraft:CC-Computer') < 1 then
+  if self:haveMaterials(computerMaterials) and self.storage:count('ComputerCraft:Computer') < 1 then
     self:prepareMaterials(computerMaterials)
     self:smelt({'cobblestone', 7}, 'coal')
     self:craft(Recipes.computer)
-    self:store('ComputerCraft:CC-Computer')
+    self:store('ComputerCraft:Computer')
     return
   end
 
   if self.state.have_baby == false then
-    local turtleMaterials = {'ComputerCraft:CC-Computer', {'log', 2}, {'iron_ingot', 7}}
+    local turtleMaterials = {'ComputerCraft:Computer', {'log', 2}, {'iron_ingot', 7}}
     if self:haveMaterials(turtleMaterials) then
       self:prepareMaterials(turtleMaterials)
       self:move('y', 2)
       self:craft(Recipes.planks, 2, false)
       self:craft(Recipes.chest, 1, false)
       self:craft(Recipes.turtle, 1, false)
-      self:exec [[ Y1 E !ComputerCraft:CC-Turtle P ]]
+      self:exec [[ Y1 E !ComputerCraft:Turtle P ]]
       self:move(startingPosition)
       self.state.have_baby = true
       self.state.num_babies = self.state.num_babies + 1
