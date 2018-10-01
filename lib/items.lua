@@ -1,4 +1,4 @@
-require('class')
+require('/lib/class')
 Item = class('Item')
 Materials = class('Materials')
 Recipe = class('Recipe')
