@@ -1,1 +1,0 @@
-do local _={have_baby=false,num_babies=0,have_disk_drive=true,have_base=true,have_floppy=true,mining_frails=0};return _;end

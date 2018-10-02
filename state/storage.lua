@@ -1,1 +1,0 @@
-do local _={top={["minecraft:sand"]=122,["minecraft:redstone"]=95,["minecraft:reeds"]=3,["minecraft:sapling"]=16,["minecraft:diamond"]=19,["minecraft:bucket"]=2,["minecraft:iron_ore"]=72,["minecraft:iron_ingot"]=9,["minecraft:glass_pane"]=15,["minecraft:log"]=134},bottom={}};return _;end

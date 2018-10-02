@@ -1,1 +1,0 @@
-do local _={y=2,x=0,bearing=1,z=0};return _;end
