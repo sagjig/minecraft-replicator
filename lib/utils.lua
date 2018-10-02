@@ -65,7 +65,7 @@ function RandomWalk:next()
 end
 
 function isTurtle(item)
-  return item and (item.name == 'ComputerCraft:CC-Turtle' or
-                   item.name == 'ComputerCraft:CC-TurtleExpanded' or
-                   item.name == 'ComputerCraft:CC-TurtleAdvanced')
+  return item and (item.name == 'computercraft:turtle' or
+                   item.name == 'computercraft:turtlet_expanded' or
+                   item.name == 'computercraft:turtle_advanced')
 end

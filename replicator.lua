@@ -1,4 +1,4 @@
-
+Replicator:drop
                --------------.
            --[[| _  _  _  _  |____________________________
           /   |  || || || ||_|___             _      _   /;
@@ -65,7 +65,7 @@ local inventoryMaterials = Materials.fromTable {
 
 local storageMaterials = Materials.fromTable {
   {'redstone', 64 * 3}, {'sand', 64 * 2}, 'log', 'iron_ore', 'diamond',
-  'reeds', 'sapling', 'glass_pane', 'iron_ingot', 'computercraft:computer',
+  'reeds', 'sapling', 'glass_pane', 'iron_ingot', 'ComputerCraft:Computer',
   'bucket', 'water_bucket', 'diamond_pickaxe', 'crafting_table'
 }
 
@@ -373,7 +373,7 @@ function Replicator:simpleMove(direction, steps)
     end
   end
 end
--- [[ Y2 E ]]
+
 function Replicator:move(axis, position)
   if type(axis) == 'table' then
     self:move('x', axis.x)
@@ -495,6 +495,7 @@ function Replicator:detectAny(materials, direction)
   return materials:count(detected) > 0
 end
 
+-- Selects an item
 function Replicator:select(item)
   local item = Item.resolve(item)
   if not item then return nil end
@@ -578,7 +579,7 @@ function Replicator:drop(item, count, direction)
 
   return dropped
 end
--- [[ Y2 E ]] <-- tf is this shiet
+
 function Replicator:exec(instructions)
   local selectedItem = nil
   for cmd in string.gmatch(instructions, '%S+') do
@@ -1242,7 +1243,7 @@ function Replicator:buildDiskDrive()
   self:smelt({'cobblestone', 7}, {'coal', 1})
   self:exec [[ Y2 ]]
   self:craft(Recipes.diskDrive, 1, false)
-  self:exec [[ Y2 E !computercraft:peripheral P Y0 ]]
+  self:exec [[ Y2 E !ComputerCraft:Peripheral P Y0 ]] -- tries to place disk drive after going up 2 blocks then returns to y 0
   self.state.have_disk_drive = true
   self:writeState()
 end
@@ -1252,7 +1253,7 @@ function Replicator:buildFloppy()
   self:craft(Recipes.paper, 1, false)
   self:craft(Recipes.floppyDisk, 1, false)
   self:exec [[ Y2 E ]]
-  self:drop('computercraft:disk_expanded', 1)
+  self:drop('ComputerCraft:disk_expanded', 1) -- drops floppy into disk drive
   self:setupFloppy('front')
   self.state.have_floppy = true
   self:writeState()
@@ -1274,7 +1275,7 @@ function Replicator:setupFloppy(direction)
     if diskTries > 20 then
       error('Unable to access disk drive.')
     end
-    diskPath = disk.getMountPath(direction)
+    diskPath = disk.getMountPath(direction) -- tries to mount floppy
     if diskTries > 10 then
       self:simpleMove('up')
       sleep(1)
@@ -1360,7 +1361,7 @@ function Replicator:loop()
     if haveParent then
       -- Figure out bearing since turtles are placed differently
       -- depending on the world orientation of the parent.
-      while not self:detect('computercraft:peripheral') do
+      while not self:detect('ComputerCraft:Peripheral') do
         self:turn('left')
       end
 
@@ -1426,9 +1427,8 @@ function Replicator:loop()
       return
     end
   end
-  -- i got an error before that state.mining fails was nil, have no figured out why.
 
-  if self.state.mining_fails and self.state.mining_fails > 5 and self:haveMaterials(relocatingMaterials) then
+  if self.state.mining_fails > 5 and self:haveMaterials(relocatingMaterials) then
     local optionalMaterials = Materials.fromTable {
       'diamond', 'iron_ore', 'sand', 'redstone', 'diamond_pickaxe'
     }
@@ -1499,23 +1499,23 @@ function Replicator:loop()
   end
 
   local computerMaterials = {{'cobblestone', 7}, 'redstone', 'glass_pane', 'coal'}
-  if self:haveMaterials(computerMaterials) and self.storage:count('computercraft:computer') < 1 then
+  if self:haveMaterials(computerMaterials) and self.storage:count('ComputerCraft:Computer') < 1 then
     self:prepareMaterials(computerMaterials)
     self:smelt({'cobblestone', 7}, 'coal')
     self:craft(Recipes.computer)
-    self:store('computercraft:computer')
+    self:store('ComputerCraft:Computer')
     return
   end
 
   if self.state.have_baby == false then
-    local turtleMaterials = {'computercraft:computer', {'log', 2}, {'iron_ingot', 7}}
+    local turtleMaterials = {'ComputerCraft:Computer', {'log', 2}, {'iron_ingot', 7}}
     if self:haveMaterials(turtleMaterials) then
       self:prepareMaterials(turtleMaterials)
       self:move('y', 2)
       self:craft(Recipes.planks, 2, false)
       self:craft(Recipes.chest, 1, false)
       self:craft(Recipes.turtle, 1, false)
-      self:exec [[ Y1 E !computercraft:turtle P ]]
+      self:exec [[ Y1 E !ComputerCraft:Turtle P ]]
       self:move(startingPosition)
       self.state.have_baby = true
       self.state.num_babies = self.state.num_babies + 1

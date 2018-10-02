@@ -1,0 +1,5 @@
+replicator:1275: Unable to access disk drive.
+replicator:1430: attempt to compare number with nil
+replicator.lua:1431: attempt to compare number with nil
+Terminated
+replicator.lua:1310: /startup: No such file
