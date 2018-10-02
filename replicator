@@ -198,7 +198,10 @@ function Storage:retrieve(item, count)
 
     local slotItem = self.replicator:inspect(slot)
     if slotItem == nil then
-      error('Storage inconsistency.')
+      print(type(slot))
+      print(slot)
+      sleep(30)
+      error('Storage inconsistency.\nslotItem is nil.\nslot varable\'s value is '..tostring(slot))
     end
 
     input:removeItem(slotItem)
@@ -433,7 +436,7 @@ function Replicator:getEmptySlot()
       return slotIdx
     end
   end
-  return null
+  return nil
 end
 
 function Replicator:inspect(slotOrDirection)
@@ -452,6 +455,8 @@ function Replicator:inspect(slotOrDirection)
     if success then
       return Item.fromTable(data)
     else
+      -- added for debuging
+      print('Inspect function returning nil,\nBecause it failed to inspect block')
       return nil
     end
   elseif type(slotOrDirection) == 'number' then
@@ -462,7 +467,11 @@ function Replicator:inspect(slotOrDirection)
     if item then
       item.slot = slotOrDirection
     end
-    return item
+    -- returns nil added print statement to tell.
+    if item == nil then
+      print('Returned nil from item inspect function.')
+      return item
+    end
   else
     error('Invalid argument.')
   end
