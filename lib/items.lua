@@ -49,7 +49,7 @@ local recipes = {
   },
   turtle = {
     "iron_ingot", "iron_ingot", "iron_ingot",
-    "iron_ingot", "ComputerCraft:CC-Computer"  , "iron_ingot",
+    "iron_ingot", "computercraft:computer"  , "iron_ingot",
     "iron_ingot", "chest"     , "iron_ingot"
   },
   diamondPick = {

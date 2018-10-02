@@ -1,1 +1,1 @@
-do local _={y=-12,x=26,bearing=4,z=-34};return _;end
+do local _={y=2,x=0,bearing=1,z=0};return _;end

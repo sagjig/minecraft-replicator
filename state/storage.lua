@@ -1,1 +1,1 @@
-do local _={top={["minecraft:sapling"]=16,["minecraft:log"]=90,["minecraft:reeds"]=2,["minecraft:redstone"]=79},bottom={["minecraft:diamond"]=19,["minecraft:log"]=46,["minecraft:sand"]=128,["minecraft:bucket"]=2,["minecraft:iron_ore"]=82}};return _;end
+do local _={top={["minecraft:sand"]=122,["minecraft:redstone"]=95,["minecraft:reeds"]=3,["minecraft:sapling"]=16,["minecraft:diamond"]=19,["minecraft:bucket"]=2,["minecraft:iron_ore"]=72,["minecraft:iron_ingot"]=9,["minecraft:glass_pane"]=15,["minecraft:log"]=134},bottom={}};return _;end
