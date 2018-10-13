@@ -1,4 +1,5 @@
 require('/lib/class')
+--require('/lib/class')
 Item = class('Item')
 Materials = class('Materials')
 Recipe = class('Recipe')
@@ -138,6 +139,7 @@ function Item.static.fromTable(data)
 end
 
 function Item.static.resolve(item)
+  --m.log(item)
   if class.Object.isInstanceOf(item, Item) then
     return item
   elseif type(item) == 'table' then

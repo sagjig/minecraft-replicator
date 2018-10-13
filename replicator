@@ -16,6 +16,7 @@ require 'lib/class'
 require 'lib/serpent'
 require 'lib/utils'
 require 'lib/items'
+require 'log'
 
 local defaultConfig = {
   state_file = 'state/state.lua',
@@ -83,6 +84,12 @@ local unwantedMaterials = Materials.fromTable {
 }
 
 local Storage = class('Storage')
+
+function debug_save_table(table,name)
+  local file = fs.open(name,"w")
+  file.write(textutils.serialize(table))
+  file.close()
+end
 
 function Storage:initialize(position, filename, replicator)
   self.position = position
@@ -197,6 +204,7 @@ function Storage:retrieve(item, count)
     end
 
     local slotItem = self.replicator:inspect(slot)
+    debug_save_table(slotItem,"slotitem.txt")
     if slotItem == nil then
       print(type(slot))
       print(slot)
@@ -522,6 +530,7 @@ function Replicator:count(item)
   local count = 0
   for slotIdx = 1,16 do
     local slotItem = self:inspect(slotIdx)
+    debug_save_table(slotItem,"slotitem"..slotIdx..".txt")
     if slotItem ~= nil and slotItem.name == item.name then
       count = count + slotItem.count
     end
@@ -889,7 +898,7 @@ function Replicator:drawStartingScreen()
       table.insert(status, '                ' .. count - have)
     end
   end
-
+  sleep(5)
   term.clear()
   term.setCursorPos(w, h)
   textutils.tabulate(status)
@@ -1349,7 +1358,7 @@ function Replicator:loop()
   if not self.state.have_base then
     while not self:haveMaterials(startingMaterials) do
       self:drawStartingScreen()
-      sleep(0.5)
+      sleep(5)
     end
 
     for _ = 1,20 do
