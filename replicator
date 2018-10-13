@@ -8,7 +8,7 @@
       /   |  || || || || |    | /  \(\)   _          //
      /    |______________|____|/   (\)  -(_)        //
     / _                                 _      _   //
-   / (\)  Replicator v.42 - az        +(_)    (=) //
+   / (\)  Replicator v.42             +(_)    (=) //
   /______________________________________________//
   `-------------------------------------------- ]]
 
@@ -470,6 +470,10 @@ function Replicator:inspect(slotOrDirection)
   elseif type(slotOrDirection) == 'number' then
     if slotOrDirection > 16 or slotOrDirection < 1 then
       error('Invalid slot.')
+    end
+    if turtle.getItemCount(slotOrDirection) == 0 then
+      err_out("Replicator: trying to resolve slot " .. slotOrDirection .. ", but its empty")
+      return nil
     end
     local item = Item.resolve(turtle.getItemDetail(slotOrDirection))
     err_out("Replicator: trying to resolve \"" .. textutils.serialize(turtle.getItemDetail(slotOrDirection)) .. "\"") 
