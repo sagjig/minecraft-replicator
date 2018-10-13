@@ -16,7 +16,7 @@ require 'lib/class'
 require 'lib/serpent'
 require 'lib/utils'
 require 'lib/items'
-require 'log'
+require '/log'
 
 local defaultConfig = {
   state_file = 'state/state.lua',
@@ -472,11 +472,13 @@ function Replicator:inspect(slotOrDirection)
       error('Invalid slot.')
     end
     local item = Item.resolve(turtle.getItemDetail(slotOrDirection))
+    err_out("Replicator: trying to resolve \"" .. textutils.serialize(turtle.getItemDetail(slotOrDirection)) .. "\"") 
     if item then
       item.slot = slotOrDirection
     end
     -- returns nil added print statement to tell.
     if item == nil then
+      err_out("Replicator: got item as nill" ) 
       print('Returned nil from item inspect function.')
       return item
     end
