@@ -1,5 +1,5 @@
 require('/lib/class')
-require('/log')
+require('log')
 m = class('log')
 Item = class('Item')
 Materials = class('Materials')
