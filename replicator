@@ -12,11 +12,15 @@
   /______________________________________________//
   `-------------------------------------------- ]]
 
+
+if redstone and not require then
+  function require(lib) shell.run(lib .. '.lua') end
+end
+
 require 'lib/class'
 require 'lib/serpent'
 require 'lib/utils'
 require 'lib/items'
-require 'log'
 
 local defaultConfig = {
   state_file = 'state/state.lua',
@@ -52,12 +56,12 @@ local startingPosition = {
 
 local startingMaterials = Materials.fromTable {
   'crafting_table', 'diamond_pickaxe', {'coal', 12}, {'cobblestone', 40},
-  {'dirt', 5}, {'log', 10}, {'reeds', 2}, {'sapling', 6}, {'water_bucket', 2}
+  {'dirt', 5}, {'oak_wood', 10}, {'sugar_cane', 2}, {'oak_sapling', 6}, {'water_bucket', 2}
 }
 
 local relocatingMaterials = Materials.fromTable {
-  {'cobblestone', 40}, {'dirt', 7}, {'log', 10}, {'reeds', 2},
-  {'sapling', 6}, {'water_bucket', 2}
+  {'cobblestone', 40}, {'dirt', 7}, {'oak_wood', 10}, {'sugar_cane', 2},
+  {'oak_sapling', 6}, {'water_bucket', 2}
 }
 
 local inventoryMaterials = Materials.fromTable {
@@ -65,8 +69,8 @@ local inventoryMaterials = Materials.fromTable {
 }
 
 local storageMaterials = Materials.fromTable {
-  {'redstone', 64 * 3}, {'sand', 64 * 2}, 'log', 'iron_ore', 'diamond',
-  'reeds', 'sapling', 'glass_pane', 'iron_ingot', 'computercraft:computer',
+  {'redstone', 64 * 3}, {'sand', 64 * 2}, 'oak_wood', 'iron_ore', 'diamond',
+  'sugar_cane', 'oak_sapling', 'glass_pane', 'iron_ingot', 'computercraft:computer_normal',
   'bucket', 'water_bucket', 'diamond_pickaxe', 'crafting_table'
 }
 
@@ -84,12 +88,6 @@ local unwantedMaterials = Materials.fromTable {
 }
 
 local Storage = class('Storage')
-
-function debug_save_table(table,name)
-  local file = fs.open(name,"w")
-  file.write(textutils.serialize(table))
-  file.close()
-end
 
 function Storage:initialize(position, filename, replicator)
   self.position = position
@@ -204,12 +202,8 @@ function Storage:retrieve(item, count)
     end
 
     local slotItem = self.replicator:inspect(slot)
-    debug_save_table(slotItem,"slotitem.txt")
     if slotItem == nil then
-      print(type(slot))
-      print(slot)
-      sleep(30)
-      error('Storage inconsistency.\nslotItem is nil.\nslot varable\'s value is '..tostring(slot))
+      error('Storage inconsistency.')
     end
 
     input:removeItem(slotItem)
@@ -384,7 +378,7 @@ function Replicator:simpleMove(direction, steps)
     end
   end
 end
--- [[ Y2 E ]]
+
 function Replicator:move(axis, position)
   if type(axis) == 'table' then
     self:move('x', axis.x)
@@ -444,7 +438,7 @@ function Replicator:getEmptySlot()
       return slotIdx
     end
   end
-  return nil
+  return null
 end
 
 function Replicator:inspect(slotOrDirection)
@@ -463,29 +457,17 @@ function Replicator:inspect(slotOrDirection)
     if success then
       return Item.fromTable(data)
     else
-      -- added for debuging
-      print('Inspect function returning nil,\nBecause it failed to inspect block')
       return nil
     end
   elseif type(slotOrDirection) == 'number' then
     if slotOrDirection > 16 or slotOrDirection < 1 then
       error('Invalid slot.')
     end
-    if turtle.getItemCount(slotOrDirection) == 0 then
-      err_out("Replicator: trying to resolve slot " .. slotOrDirection .. ", but its empty")
-      return nil
-    end
     local item = Item.resolve(turtle.getItemDetail(slotOrDirection))
-    err_out("Replicator: trying to resolve \"" .. textutils.serialize(turtle.getItemDetail(slotOrDirection)) .. "\"") 
     if item then
       item.slot = slotOrDirection
     end
-    -- returns nil added print statement to tell.
-    if item == nil then
-      err_out("Replicator: got item as nill" ) 
-      print('Returned nil from item inspect function.')
-      return item
-    end
+    return item
   else
     error('Invalid argument.')
   end
@@ -536,7 +518,6 @@ function Replicator:count(item)
   local count = 0
   for slotIdx = 1,16 do
     local slotItem = self:inspect(slotIdx)
-    debug_save_table(slotItem,"slotitem"..slotIdx..".txt")
     if slotItem ~= nil and slotItem.name == item.name then
       count = count + slotItem.count
     end
@@ -602,7 +583,7 @@ function Replicator:drop(item, count, direction)
 
   return dropped
 end
--- [[ Y2 E ]] <-- tf is this shiet
+
 function Replicator:exec(instructions)
   local selectedItem = nil
   for cmd in string.gmatch(instructions, '%S+') do
@@ -904,7 +885,7 @@ function Replicator:drawStartingScreen()
       table.insert(status, '                ' .. count - have)
     end
   end
-  sleep(5)
+
   term.clear()
   term.setCursorPos(w, h)
   textutils.tabulate(status)
@@ -960,7 +941,7 @@ function Replicator:buildBase()
   self:craft(Recipes.furnace, 1)
   self:exec [[ W !furnace U P D N ]]
   if self:count('coal') == 0 then
-    self:smelt('log', 'planks')
+    self:smelt('oak_wood', 'planks')
   end
   self:exec [[ Y2 ]]
   self:craft(Recipes.stick, 1, false)
@@ -972,16 +953,16 @@ end
 
 function Replicator:logRefuel()
   local minLogs = 10
-  local numLogs = self.storage:count('log')
+  local numLogs = self.storage:count('oak_wood')
   if turtle.getFuelLevel() < 80 then
     minLogs = 3
   end
   if numLogs >= minLogs then
     numLogs = math.min(numLogs, 10)
-    self:retrieve('log', numLogs)
-    self:smelt('log', 'log')
+    self:retrieve('oak_wood', numLogs)
+    self:smelt('oak_wood', 'oak_wood')
     if numLogs - 2 > 1 then
-      self:smelt({'log', numLogs - 2}, 'coal')
+      self:smelt({'oak_wood', numLogs - 2}, 'coal')
     end
     self:refuel()
   end
@@ -1218,15 +1199,15 @@ function Replicator:findSand()
 end
 
 function Replicator:lumberjack()
-  local saplingCount = self.storage:count('sapling')
+  local saplingCount = self.storage:count('oak_sapling')
   if saplingCount > 0 then
-    self:retrieve('sapling', math.min(3, saplingCount))
+    self:retrieve('oak_sapling', math.min(3, saplingCount))
   end
   self:exec [[ Y4 ]]
   for pos=1,3 do
     self:move('x', -pos)
     self:turn(cardinal.north)
-    if self:detect('log') then
+    if self:detect('oak_wood') then
       local leafStart, above
       local height = 0
       repeat
@@ -1246,13 +1227,13 @@ function Replicator:lumberjack()
         self:simpleMove('down')
       end
       self:exec [[ D QD !sapling PD S F D ]]
-    elseif not self:detect('sapling') then
+    elseif not self:detect('oak_sapling') then
       self:exec [[ !sapling P ]]
     end
   end
   self:exec [[ X0 Y0 ]]
-  if self.storage:count('sapling') > 60 then
-    self:drop('sapling', nil, 'down')
+  if self.storage:count('oak_sapling') > 60 then
+    self:drop('oak_sapling', nil, 'down')
   end
   self.lastLumberTrip = os.clock()
 end
@@ -1276,7 +1257,7 @@ function Replicator:buildFloppy()
   self:craft(Recipes.paper, 1, false)
   self:craft(Recipes.floppyDisk, 1, false)
   self:exec [[ Y2 E ]]
-  self:drop('computercraft:disk_expanded', 1)
+  self:drop('ComputerCraft:disk', 1)
   self:setupFloppy('front')
   self.state.have_floppy = true
   self:writeState()
@@ -1364,7 +1345,7 @@ function Replicator:loop()
   if not self.state.have_base then
     while not self:haveMaterials(startingMaterials) do
       self:drawStartingScreen()
-      sleep(5)
+      sleep(0.5)
     end
 
     for _ = 1,20 do
@@ -1423,7 +1404,7 @@ function Replicator:loop()
   self:inventoryCleaning()
   self:compactInventory()
 
-  if self.storage:count('log') < 120 or self.storage:count('sapling') < 16 then
+  if self.storage:count('oak_wood') < 120 or self.storage:count('oak_sapling') < 16 then
     if os.clock() - self.lastLumberTrip > self.config.lumberjack_interval then
       self:lumberjack()
       return
@@ -1444,15 +1425,14 @@ function Replicator:loop()
     return
   end
 
-  if self.storage:count('reeds') < 20 then
+  if self.storage:count('sugar_cane') < 20 then
     if os.clock() - self.lastReedsTrip > self.config.reeds_interval then
       self:reedsjack()
       return
     end
   end
-  -- i got an error before that state.mining fails was nil, have no figured out why.
 
-  if self.state.mining_fails and self.state.mining_fails > 5 and self:haveMaterials(relocatingMaterials) then
+  if self.state.mining_fails > 5 and self:haveMaterials(relocatingMaterials) then
     local optionalMaterials = Materials.fromTable {
       'diamond', 'iron_ore', 'sand', 'redstone', 'diamond_pickaxe'
     }
@@ -1497,8 +1477,8 @@ function Replicator:loop()
     return
   end
 
-  if not self.state.have_floppy then
-    local floppyMaterials = {{'redstone', 1}, {'reeds', 3}}
+ if not self.state.have_floppy and self.state.have_disk_drive then
+    local floppyMaterials = {{'redstone', 1}, {'sugar_cane', 3}}
     if self:haveMaterials(floppyMaterials) then
       self:prepareMaterials(floppyMaterials)
       self:buildFloppy()
@@ -1523,23 +1503,23 @@ function Replicator:loop()
   end
 
   local computerMaterials = {{'cobblestone', 7}, 'redstone', 'glass_pane', 'coal'}
-  if self:haveMaterials(computerMaterials) and self.storage:count('computercraft:computer') < 1 then
+  if self:haveMaterials(computerMaterials) and self.storage:count('computercraft:computer_normal') < 1 then
     self:prepareMaterials(computerMaterials)
     self:smelt({'cobblestone', 7}, 'coal')
     self:craft(Recipes.computer)
-    self:store('computercraft:computer')
+    self:store('computercraft:computer_normal')
     return
   end
 
   if self.state.have_baby == false then
-    local turtleMaterials = {'computercraft:computer', {'log', 2}, {'iron_ingot', 7}}
+    local turtleMaterials = {'computercraft:computer_normal', {'oak_wood', 2}, {'iron_ingot', 7}}
     if self:haveMaterials(turtleMaterials) then
       self:prepareMaterials(turtleMaterials)
       self:move('y', 2)
       self:craft(Recipes.planks, 2, false)
       self:craft(Recipes.chest, 1, false)
       self:craft(Recipes.turtle, 1, false)
-      self:exec [[ Y1 E !computercraft:turtle P ]]
+      self:exec [[ Y1 E !computercraft:turtle_normal P ]]
       self:move(startingPosition)
       self.state.have_baby = true
       self.state.num_babies = self.state.num_babies + 1
@@ -1560,8 +1540,8 @@ function Replicator:loop()
       self:craft(Recipes.bucket, 2)
       return
     end
-    if self:haveMaterials{'log', {'diamond', 3}} and self.storage:count('diamond_pickaxe') < 1 then
-      self:prepareMaterials{'log', {'diamond', 3}}
+    if self:haveMaterials{'oak_wood', {'diamond', 3}} and self.storage:count('diamond_pickaxe') < 1 then
+      self:prepareMaterials{'oak_wood', {'diamond', 3}}
       self:move('y', 2)
       self:craft(Recipes.planks, 1, false)
       self:craft(Recipes.stick, 2, false)
@@ -1569,8 +1549,8 @@ function Replicator:loop()
       self:move('y', 0)
       return
     end
-    if self:haveMaterials{'log'} and self.storage:count('crafting_table') < 1 then
-      self:prepareMaterials{'log'}
+    if self:haveMaterials{'oak_wood'} and self.storage:count('crafting_table') < 1 then
+      self:prepareMaterials{'oak_wood'}
       self:move('y', 2)
       self:craft(Recipes.planks, 1, false)
       self:craft(Recipes.craftingTable, 1, false)
@@ -1587,8 +1567,8 @@ function Replicator:loop()
       -- give extra starting materials if possible
       local extraMaterials = Materials:new({})
       local checkMaterials = Materials.fromTable {
-        {'sand', 12}, {'log', 32}, {'diamond', 6}, {'iron_ore', 16},
-        {'redstone', 16}, {'reeds', 6}, {'coal', 32}, {'sapling', 16},
+        {'sand', 12}, {'oak_wood', 32}, {'diamond', 6}, {'iron_ore', 16},
+        {'redstone', 16}, {'sugar_cane', 6}, {'coal', 32}, {'oak_sapling', 16},
       }
 
       for _,item in ipairs(checkMaterials:getItems()) do
