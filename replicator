@@ -16,7 +16,7 @@ require 'lib/class'
 require 'lib/serpent'
 require 'lib/utils'
 require 'lib/items'
-require '/log'
+require 'log'
 
 local defaultConfig = {
   state_file = 'state/state.lua',
